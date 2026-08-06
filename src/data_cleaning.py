@@ -25,3 +25,14 @@ def remove_missing_values(df):
 def save_dataset(df, filename):
     df.to_csv(filename,index=False)
 
+def clean_dataset(df,filename):
+    print("\n===================================")
+    print("Cleaning Dataset...")
+    print("===================================")
+    dataset_info(df)
+    check_missingValues(df)
+    check_duplicates(df)
+    df = remove_duplicates(df)
+    df = remove_missing_values(df)
+    save_dataset(df,filename)
+    return 
