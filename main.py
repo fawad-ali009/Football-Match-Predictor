@@ -1,7 +1,7 @@
 from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
 from src.statistics import dataset_report
-from src.visualization import histogram, boxplot, countplot, scatterplot
+from src.visualization import histogram, boxplot, countplot, scatterplot, heatmap
 
 
 games = load_games()
@@ -47,7 +47,7 @@ for column in game_histogram_columns:
     histogram(
         games,
         column,
-        "graphs/Histograms" +column+ ".png"
+        "graphs/Histograms/" +column+ ".png"
     )
 
 for column in teamstats_histogram_columns:
@@ -118,3 +118,7 @@ for x_column, y_column in scatter_plots_columns:
 
     )
 
+heatmap(
+    stats,
+    "graphs/heatmaps/stats_correlation.png"
+)

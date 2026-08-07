@@ -11,7 +11,7 @@ def histogram(df,column,filename):
     plt.xlabel(column.replace("_", " ").title())
     plt.ylabel("Frequency")
     plt.savefig(filename)
-    plt.show()
+   # plt.show()
     plt.close()
 
 def boxplot(df,column,filename):
@@ -62,6 +62,25 @@ def scatterplot(df,x_column,y_column,filename):
 
     plt.xlabel(x_column.replace("_", " ").title())
     plt.ylabel(y_column.replace("_", " ").title())
+
+    plt.savefig(filename)
+
+   # plt.show()
+
+    plt.close()
+
+def heatmap(df,filename):
+    plt.figure(figsize=(8,5))
+
+    corr = df.corr(numeric_only=True)
+
+    sns.heatmap(
+        corr,
+        annot=True,
+        cmap="coolwarm"
+    )
+
+    plt.title("Correlation Heatmap")
 
     plt.savefig(filename)
 
