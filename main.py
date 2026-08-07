@@ -1,7 +1,7 @@
 from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
 from src.statistics import dataset_report
-from src.visualization import histogram
+from src.visualization import histogram, boxplot
 
 games = load_games()
 teams = load_teams()
@@ -42,16 +42,37 @@ teamstats_histogram_columns = [
     "redCards"
 ]
 
-for column in game_histogram_columns:
-    histogram(
-        games,
-        column,
-        "graphs/Histograms" +column+ ".png"
-    )
+#for column in game_histogram_columns:
+ #   histogram(
+  #      games,
+   #     column,
+    #    "graphs/Histograms" +column+ ".png"
+    #)
 
-for column in teamstats_histogram_columns:
-    histogram(
+#for column in teamstats_histogram_columns:
+ #   histogram(
+  #      stats,
+   #     column,
+    #    "graphs/Histograms" +column+ ".png"
+    #)
+
+teamstats_boxplot_columns = [
+    "goals",
+    "xGoals",
+    "shots",
+    "shotsOnTarget",
+    "deep",
+    "ppda",
+    "fouls",
+    "corners",
+    "yellowCards",
+    "redCards"
+]
+
+for column in teamstats_boxplot_columns:
+
+    boxplot(
         stats,
         column,
-        "graphs/Histograms" +column+ ".png"
+        "graphs/Boxplots/" + column + ".png"
     )
