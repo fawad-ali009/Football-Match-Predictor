@@ -1,7 +1,8 @@
 from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
 from src.statistics import dataset_report
-from src.visualization import histogram, boxplot
+from src.visualization import histogram, boxplot, countplot
+
 
 games = load_games()
 teams = load_teams()
@@ -42,19 +43,19 @@ teamstats_histogram_columns = [
     "redCards"
 ]
 
-#for column in game_histogram_columns:
- #   histogram(
-  #      games,
-   #     column,
-    #    "graphs/Histograms" +column+ ".png"
-    #)
+for column in game_histogram_columns:
+    histogram(
+        games,
+        column,
+        "graphs/Histograms" +column+ ".png"
+    )
 
-#for column in teamstats_histogram_columns:
- #   histogram(
-  #      stats,
-   #     column,
-    #    "graphs/Histograms" +column+ ".png"
-    #)
+for column in teamstats_histogram_columns:
+    histogram(
+        stats,
+        column,
+        "graphs/Histograms" +column+ ".png"
+    )
 
 teamstats_boxplot_columns = [
     "goals",
@@ -75,4 +76,27 @@ for column in teamstats_boxplot_columns:
         stats,
         column,
         "graphs/Boxplots/" + column + ".png"
+    )
+
+stats_countplot_columns = [
+    "result",
+    "location"
+]
+games_countplot_columns = [
+    "season",
+    "leagueID"
+]
+
+for column in stats_countplot_columns:
+    countplot(
+        stats,
+        column,
+        "graphs/counterplots/"+column+".png"
+    )
+
+for column in games_countplot_columns:
+    countplot(
+        games,
+        column,
+        "graphs/counterplots/"+column+".png"
     )
