@@ -21,8 +21,37 @@ stats = clean_dataset(
 
 dataset_report(games)
 
-histogram(
-    games,
+game_histogram_columns = [
     "homeGoals",
-    "graphs/histograms/homeGoals.png"
-)
+    "awayGoals",
+    "homeProbability",
+    "drawProbability",
+    "awayProbability"
+]
+
+teamstats_histogram_columns = [
+    "goals",
+    "xGoals",
+    "shots",
+    "shotsOnTarget",
+    "deep",
+    "ppda",
+    "fouls",
+    "corners",
+    "yellowCards",
+    "redCards"
+]
+
+for column in game_histogram_columns:
+    histogram(
+        games,
+        column,
+        "graphs/Histograms" +column+ ".png"
+    )
+
+for column in teamstats_histogram_columns:
+    histogram(
+        stats,
+        column,
+        "graphs/Histograms" +column+ ".png"
+    )
