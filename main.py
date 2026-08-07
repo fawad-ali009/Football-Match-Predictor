@@ -1,6 +1,7 @@
 from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
 from src.statistics import dataset_report
+from src.visualization import histogram
 
 games = load_games()
 teams = load_teams()
@@ -19,3 +20,9 @@ stats = clean_dataset(
 )
 
 dataset_report(games)
+
+histogram(
+    games,
+    "homeGoals",
+    "graphs/histograms/homeGoals.png"
+)

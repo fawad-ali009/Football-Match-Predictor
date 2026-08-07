@@ -1,5 +1,3 @@
-import pandas as pd
-df = pd.read_csv("data/raw/games.csv")
 def dataset_summary(df):
     print("\n========== DATASET SUMMARY ==========\n")
     print("ROWS : "+str(df.shape[0]))
@@ -83,4 +81,3 @@ def dataset_report(df):
 
     correlation_matrix(df)
 
-dataset_report(df)
