@@ -11,7 +11,6 @@ def histogram(df,column,filename):
     plt.xlabel(column.replace("_", " ").title())
     plt.ylabel("Frequency")
     plt.savefig(filename)
-   # plt.show()
     plt.close()
 
 def boxplot(df,column,filename):
@@ -24,7 +23,6 @@ def boxplot(df,column,filename):
     plt.xlabel(column.replace("_", " ").title())
     plt.ylabel("Frequency")
     plt.savefig(filename)
-   # plt.show()
     plt.close()
 
 def countplot(df, column, filename):
@@ -41,8 +39,6 @@ def countplot(df, column, filename):
     plt.ylabel("Count")
 
     plt.savefig(filename)
-
-   # plt.show()
 
     plt.close()
 
@@ -65,8 +61,6 @@ def scatterplot(df,x_column,y_column,filename):
 
     plt.savefig(filename)
 
-   # plt.show()
-
     plt.close()
 
 def heatmap(df,filename):
@@ -81,6 +75,31 @@ def heatmap(df,filename):
     )
 
     plt.title("Correlation Heatmap")
+
+    plt.savefig(filename)
+
+    plt.close()
+
+def barplot(df, category, value, filename):
+
+    plt.figure(figsize=(8, 5))
+
+    data = df.groupby(category)[value].mean()
+
+    sns.barplot(
+        x=data.index,
+        y=data.values
+    )
+
+    plt.title(
+        "Average "
+        + value.replace("_", " ").title()
+        + " by "
+        + category.replace("_", " ").title()
+    )
+
+    plt.xlabel(category.replace("_", " ").title())
+    plt.ylabel("Average " + value.replace("_", " ").title())
 
     plt.savefig(filename)
 

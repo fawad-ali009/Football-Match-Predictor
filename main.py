@@ -1,7 +1,7 @@
 from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
 from src.statistics import dataset_report
-from src.visualization import histogram, boxplot, countplot, scatterplot, heatmap
+from src.visualization import histogram, boxplot, countplot, scatterplot, heatmap, barplot
 
 
 games = load_games()
@@ -121,4 +121,11 @@ for x_column, y_column in scatter_plots_columns:
 heatmap(
     stats,
     "graphs/heatmaps/stats_correlation.png"
+)
+
+barplot(
+    stats,
+    "location",
+    "goals",
+    "graphs/barplots/average_goals_by_location.png"
 )
