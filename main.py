@@ -1,7 +1,7 @@
 from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
 from src.statistics import dataset_report
-from src.visualization import histogram, boxplot, countplot
+from src.visualization import histogram, boxplot, countplot, scatterplot
 
 
 games = load_games()
@@ -54,7 +54,7 @@ for column in teamstats_histogram_columns:
     histogram(
         stats,
         column,
-        "graphs/Histograms" +column+ ".png"
+        "graphs/Histograms/" +column+ ".png"
     )
 
 teamstats_boxplot_columns = [
@@ -100,3 +100,21 @@ for column in games_countplot_columns:
         column,
         "graphs/counterplots/"+column+".png"
     )
+
+scatter_plots_columns = [
+    ("shots","goals"),
+    ("xGoals","goals"),
+    ("shotsOnTarget","goals"),
+    ("corners","goals")
+]
+for x_column, y_column in scatter_plots_columns:
+    scatterplot(
+        stats,
+        x_column,
+        y_column,
+        "graphs/scatterplots/"
+        +x_column + "_vs_"
+        +y_column + ".png"
+
+    )
+
