@@ -22,6 +22,7 @@ def remove_duplicates(df):
 def remove_missing_values(df):
     df = df.dropna()
     return df
+
 def save_dataset(df, filename):
     df.to_csv(filename,index=False)
 

@@ -2,6 +2,7 @@ from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
 from src.statistics import dataset_report
 from src.visualization import histogram, boxplot, countplot, scatterplot, heatmap, barplot
+from src.feature_engineering import create_match_features,create_target,create_team_history
 
 
 games = load_games()
@@ -129,3 +130,19 @@ barplot(
     "goals",
     "graphs/barplots/average_goals_by_location.png"
 )
+
+match_features = create_match_features(stats)
+
+print(match_features.head())
+print(match_features.shape)
+print(match_features.columns)
+
+match_features = create_target(match_features)
+
+print(match_features[["home_goals","away_goals","target"]].head(10))
+print(match_features["target"].value_counts())
+
+team_history = create_team_history(match_features)
+print(team_history.head(10))
+print(team_history.shape)
+print(team_history.columns)
