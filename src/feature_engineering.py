@@ -150,3 +150,32 @@ def create_team_history(match_features):
     team_history = team_history.sort_values("date")
 
     return team_history
+
+def add_historical_averages(team_history):
+
+    team_history = team_history.copy()
+
+    features = [
+        "goals",
+        "xGoals",
+        "shots",
+        "shotsOnTarget",
+        "deep",
+        "ppda",
+        "fouls",
+        "corners",
+        "yellowCards",
+        "redCards"
+    ]
+
+    for feature in features:
+
+        team_history["previous_avg_" + feature] = (
+            team_history
+            .groupby("teamID")[feature]
+            .transform(
+                lambda x: x.shift().expanding().mean()
+            )
+        )
+
+    return team_history

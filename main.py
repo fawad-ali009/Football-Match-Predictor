@@ -2,7 +2,7 @@ from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
 from src.statistics import dataset_report
 from src.visualization import histogram, boxplot, countplot, scatterplot, heatmap, barplot
-from src.feature_engineering import create_match_features,create_target,create_team_history
+from src.feature_engineering import create_match_features,create_target,create_team_history,add_historical_averages
 
 
 games = load_games()
@@ -146,3 +146,21 @@ team_history = create_team_history(match_features)
 print(team_history.head(10))
 print(team_history.shape)
 print(team_history.columns)
+team_history = add_historical_averages(team_history)
+print(
+    team_history[
+        [
+            "teamID",
+            "date",
+            "goals",
+            "previous_avg_goals",
+            "xGoals",
+            "previous_avg_xGoals",
+            "shots",
+            "previous_avg_shots"
+        ]
+    ].head(20)
+)
+team_history = team_history[
+    team_history["teamID"] == 177
+]
