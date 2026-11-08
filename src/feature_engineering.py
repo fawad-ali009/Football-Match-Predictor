@@ -179,3 +179,74 @@ def add_historical_averages(team_history):
         )
 
     return team_history
+
+def add_match_historical_features(match_features, team_history):
+
+    historical_features = [
+        "previous_avg_goals",
+        "previous_avg_xGoals",
+        "previous_avg_shots",
+        "previous_avg_shotsOnTarget",
+        "previous_avg_deep",
+        "previous_avg_ppda",
+        "previous_avg_fouls",
+        "previous_avg_corners",
+        "previous_avg_yellowCards",
+        "previous_avg_redCards"
+    ]
+
+    home_history = team_history[
+        ["gameID", "teamID"] + historical_features
+    ].copy()
+
+    away_history = team_history[
+        ["gameID", "teamID"] + historical_features
+    ].copy()
+
+    home_history = home_history.rename(
+        columns={
+            "teamID": "homeTeamID",
+            "previous_avg_goals": "home_previous_avg_goals",
+            "previous_avg_xGoals": "home_previous_avg_xGoals",
+            "previous_avg_shots": "home_previous_avg_shots",
+            "previous_avg_shotsOnTarget": "home_previous_avg_shotsOnTarget",
+            "previous_avg_deep": "home_previous_avg_deep",
+            "previous_avg_ppda": "home_previous_avg_ppda",
+            "previous_avg_fouls": "home_previous_avg_fouls",
+            "previous_avg_corners": "home_previous_avg_corners",
+            "previous_avg_yellowCards": "home_previous_avg_yellowCards",
+            "previous_avg_redCards": "home_previous_avg_redCards"
+        }
+    )
+
+    away_history = away_history.rename(
+        columns={
+            "teamID": "awayTeamID",
+            "previous_avg_goals": "away_previous_avg_goals",
+            "previous_avg_xGoals": "away_previous_avg_xGoals",
+            "previous_avg_shots": "away_previous_avg_shots",
+            "previous_avg_shotsOnTarget": "away_previous_avg_shotsOnTarget",
+            "previous_avg_deep": "away_previous_avg_deep",
+            "previous_avg_ppda": "away_previous_avg_ppda",
+            "previous_avg_fouls": "away_previous_avg_fouls",
+            "previous_avg_corners": "away_previous_avg_corners",
+            "previous_avg_yellowCards": "away_previous_avg_yellowCards",
+            "previous_avg_redCards": "away_previous_avg_redCards"
+        }
+    )
+
+    match_features = pd.merge(
+        match_features,
+        home_history,
+        on=["gameID", "homeTeamID"],
+        how="left"
+    )
+
+    match_features = pd.merge(
+        match_features,
+        away_history,
+        on=["gameID", "awayTeamID"],
+        how="left"
+    )
+
+    return match_features

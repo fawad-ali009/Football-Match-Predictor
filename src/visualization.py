@@ -103,6 +103,4 @@ def barplot(df, category, value, filename):
 
     plt.savefig(filename)
 
-    plt.show()
-
     plt.close()

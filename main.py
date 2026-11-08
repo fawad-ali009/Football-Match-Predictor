@@ -2,7 +2,7 @@ from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
 from src.statistics import dataset_report
 from src.visualization import histogram, boxplot, countplot, scatterplot, heatmap, barplot
-from src.feature_engineering import create_match_features,create_target,create_team_history,add_historical_averages
+from src.feature_engineering import create_match_features,create_target,create_team_history,add_historical_averages,add_match_historical_features
 
 
 games = load_games()
@@ -161,6 +161,77 @@ print(
         ]
     ].head(20)
 )
-team_history = team_history[
-    team_history["teamID"] == 177
-]
+
+team_history = add_historical_averages(team_history)
+
+match_features = add_match_historical_features(
+    match_features,
+    team_history
+)
+
+print(
+    match_features[
+        [
+            "gameID",
+            "homeTeamID",
+            "awayTeamID",
+            "home_previous_avg_goals",
+            "away_previous_avg_goals",
+            "home_previous_avg_xGoals",
+            "away_previous_avg_xGoals",
+            "home_previous_avg_shots",
+            "away_previous_avg_shots"
+        ]
+    ].head(20)
+)
+
+print(
+    match_features[
+        (match_features["homeTeamID"] == 177) |
+        (match_features["awayTeamID"] == 177)
+    ][
+        [
+            "gameID",
+            "homeTeamID",
+            "awayTeamID",
+            "home_previous_avg_shots",
+            "away_previous_avg_shots"
+        ]
+    ].sort_values("gameID").head(20)
+)
+
+print(
+    match_features[
+        [
+            "home_previous_avg_goals",
+            "away_previous_avg_goals",
+            "home_previous_avg_shots",
+            "away_previous_avg_shots"
+        ]
+    ].isnull().sum()
+)
+
+team_history = add_historical_averages(team_history)
+print("Total team history rows:")
+print(len(team_history))
+
+print("Unique teams:")
+print(team_history["teamID"].nunique())
+
+print("Missing historical averages:")
+print(team_history["previous_avg_goals"].isnull().sum())
+
+print("Non-missing historical averages:")
+print(team_history["previous_avg_goals"].notnull().sum())
+
+print("Home and away records:")
+print(team_history["location"].value_counts())
+
+print("Match rows:", len(match_features))
+
+match_features = add_match_historical_features(
+    match_features,
+    team_history
+)
+
+print("Match rows after merging:", len(match_features))
