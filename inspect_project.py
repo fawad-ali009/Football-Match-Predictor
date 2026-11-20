@@ -3,7 +3,7 @@ from src.data_cleaning import clean_dataset
 from src.statistics import dataset_report
 from src.visualization import histogram, boxplot, countplot, scatterplot, heatmap, barplot
 from src.feature_engineering import create_match_features,create_target,create_team_history,add_historical_averages,add_match_historical_features
-
+from src.preprocessing import prepare_features, split_by_date
 
 games = load_games()
 teams = load_teams()
@@ -235,3 +235,57 @@ match_features = add_match_historical_features(
 )
 
 print("Match rows after merging:", len(match_features))
+
+# =========================
+# DATA PREPROCESSING
+# =========================
+
+train_data, test_data = split_by_date(match_features)
+
+X_train, X_test, y_train, y_test, imputer, scaler = prepare_features(
+    train_data,
+    test_data
+)
+
+# =========================
+# PREPROCESSING TESTS
+# =========================
+
+print("\n========== DATA SPLIT ==========")
+
+print("Training records:", len(X_train))
+print("Testing records:", len(X_test))
+
+print("\nTraining features:", X_train.shape[1])
+print("Testing features:", X_test.shape[1])
+
+print("\n========== MISSING VALUES ==========")
+
+print("Training missing values:")
+print(X_train.isnull().sum().sum())
+
+print("Testing missing values:")
+print(X_test.isnull().sum().sum())
+
+print("\n========== DATE CHECK ==========")
+
+print("Last training date:")
+print(train_data["date"].max())
+
+print("First testing date:")
+print(test_data["date"].min())
+
+print("\n========== TARGET DISTRIBUTION ==========")
+
+print("Training targets:")
+print(y_train.value_counts())
+
+print("\nTesting targets:")
+print(y_test.value_counts())
+
+print("\n========== FEATURE CHECK ==========")
+
+print(X_train.columns)
+
+print("\nTraining data sample:")
+print(X_train.head())
