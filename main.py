@@ -7,6 +7,7 @@ from src.feature_engineering import (
     add_historical_averages,
     add_match_historical_features
 )
+from src.preprocessing import split_by_date, prepare_features
 
 
 # Step 1: Load datasets
@@ -42,6 +43,20 @@ match_features = add_match_historical_features(
     match_features,
     team_history
 )
+
+
+# =========================
+# DATA PREPROCESSING
+# =========================
+
+train_data, test_data = split_by_date(match_features)
+
+X_train, X_test, y_train, y_test, imputer, scaler = prepare_features(
+    train_data,
+    test_data
+)
+
+print("Data preprocessing completed successfully!")
 
 
 # Step 4: Final confirmation
