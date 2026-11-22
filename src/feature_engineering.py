@@ -250,3 +250,199 @@ def add_match_historical_features(match_features, team_history):
     )
 
     return match_features
+
+# New feature added
+def previous_five_average(values):
+
+    previous_values = values.shift(1)
+
+    averages = previous_values.rolling(
+        window=5,
+        min_periods=1
+    ).mean()
+
+    return averages
+
+def previous_five_points(values):
+
+    previous_values = values.shift(1)
+
+    total_points = previous_values.rolling(
+        window=5,
+        min_periods=1
+    ).sum()
+
+    return total_points
+
+def add_recent_features(team_history):
+
+    history = team_history.copy()
+
+    history["date"] = pd.to_datetime(history["date"])
+
+    history = history.sort_values(
+        ["teamID", "date", "gameID"]
+    )
+
+    # Every match must have two team records
+    match_counts = history.groupby("gameID")["teamID"].transform("size")
+
+    if (match_counts != 2).any():
+        raise ValueError("Each match must have exactly two team records.")
+
+    # Calculate goals conceded
+    history["conceded_goals"] = (
+        history.groupby("gameID")["goals"].transform("sum")
+        - history["goals"]
+    )
+
+    # Calculate goal difference
+    history["goal_difference"] = (
+        history["goals"] - history["conceded_goals"]
+    )
+
+    # Calculate match points
+    history["points"] = 0
+
+    history.loc[
+        history["goals"] > history["conceded_goals"],
+        "points"
+    ] = 3
+
+    history.loc[
+        history["goals"] == history["conceded_goals"],
+        "points"
+    ] = 1
+
+    # Calculate recent form
+    history["previous_form_points_5"] = (
+        history.groupby("teamID")["points"]
+        .transform(previous_five_points)
+    )
+
+    # Calculate recent averages
+    average_features = {
+        "goals": "previous_avg_goals_5",
+        "conceded_goals": "previous_avg_conceded_5",
+        "goal_difference": "previous_goal_difference_5"
+    }
+
+    for column, new_column in average_features.items():
+
+        history[new_column] = (
+            history.groupby("teamID")[column]
+            .transform(previous_five_average)
+        )
+
+    # Identify home and away matches
+    history["home_match"] = (
+        history["location"] == "h"
+    ).astype(int)
+
+    history["away_match"] = (
+        history["location"] == "a"
+    ).astype(int)
+
+    # Identify home and away wins
+    history["home_win"] = (
+        (history["location"] == "h") &
+        (history["points"] == 3)
+    ).astype(int)
+
+    history["away_win"] = (
+        (history["location"] == "a") &
+        (history["points"] == 3)
+    ).astype(int)
+
+    # Calculate historical home and away win rates
+    for location in ["home", "away"]:
+
+        match_column = location + "_match"
+        win_column = location + "_win"
+
+        previous_matches = (
+            history.groupby("teamID")[match_column].cumsum()
+            - history[match_column]
+        )
+
+        previous_wins = (
+            history.groupby("teamID")[win_column].cumsum()
+            - history[win_column]
+        )
+
+        history["previous_" + location + "_win_rate"] = (
+            previous_wins /
+            previous_matches.replace(0, float("nan"))
+        )
+
+    # Remove temporary calculation columns
+    history = history.drop(
+        columns=[
+            "home_match",
+            "away_match",
+            "home_win",
+            "away_win"
+        ]
+    )
+
+    return history
+
+def add_match_recent_features(match_features, team_history):
+
+    feature_columns = [
+        "previous_form_points_5",
+        "previous_avg_goals_5",
+        "previous_avg_conceded_5",
+        "previous_goal_difference_5",
+        "previous_home_win_rate",
+        "previous_away_win_rate"
+    ]
+
+    columns = ["gameID", "teamID"] + feature_columns
+
+    # Home team records
+    home = team_history[
+        team_history["location"] == "h"
+    ][columns].copy()
+
+    # Away team records
+    away = team_history[
+        team_history["location"] == "a"
+    ][columns].copy()
+
+    home = home.rename(
+        columns={"teamID": "homeTeamID"}
+    )
+
+    away = away.rename(
+        columns={"teamID": "awayTeamID"}
+    )
+
+    # Rename historical features
+    for column in feature_columns:
+
+        home = home.rename(
+            columns={column: "home_" + column}
+        )
+
+        away = away.rename(
+            columns={column: "away_" + column}
+        )
+
+    # Merge home features
+    matches = match_features.merge(
+        home,
+        on=["gameID", "homeTeamID"],
+        how="left",
+        validate="one_to_one"
+    )
+
+    # Merge away features
+    matches = matches.merge(
+        away,
+        on=["gameID", "awayTeamID"],
+        how="left",
+        validate="one_to_one"
+    )
+
+    return matches

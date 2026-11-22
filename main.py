@@ -5,7 +5,9 @@ from src.feature_engineering import (
     create_target,
     create_team_history,
     add_historical_averages,
-    add_match_historical_features
+    add_match_historical_features,
+    add_match_recent_features,
+    add_recent_features
 )
 from src.preprocessing import split_by_date, prepare_features
 from src.model_training import train_logistic_regression, train_random_forest, train_gradient_boosting
@@ -32,7 +34,10 @@ stats = clean_dataset(
 )
 
 
-# Step 3: Feature engineering
+# =====================================
+# FEATURE ENGINEERING
+# =====================================
+
 match_features = create_match_features(stats)
 
 match_features = create_target(match_features)
@@ -41,11 +46,23 @@ team_history = create_team_history(match_features)
 
 team_history = add_historical_averages(team_history)
 
+team_history = add_recent_features(team_history)
+
 match_features = add_match_historical_features(
     match_features,
     team_history
 )
 
+match_features = add_match_recent_features(
+    match_features,
+    team_history
+)
+
+print("\nFeature engineering completed!")
+
+print("Total matches:", len(match_features))
+
+print("Total columns:", len(match_features.columns))
 
 # =========================
 # DATA PREPROCESSING
@@ -68,6 +85,9 @@ print("Feature engineering completed successfully!")
 print("Total matches:", len(match_features))
 print("Total features:", len(match_features.columns))
 
+# =====================================
+# LOGISTIC REGRESSION
+# =====================================
 
 print("\n========== LOGISTIC REGRESSION ==========")
 
@@ -84,6 +104,9 @@ logistic_predictions = evaluate_model(
     y_validation
 )
 
+# =====================================
+# RANDOM FOREST
+# =====================================
 
 print("\n========== RANDOM FOREST ==========")
 
@@ -99,6 +122,10 @@ random_forest_predictions = evaluate_model(
     X_validation,
     y_validation
 )
+
+# =====================================
+# GRADIENT BOOSTING
+# =====================================
 
 print("\n========== GRADIENT BOOSTING ==========")
 

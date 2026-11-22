@@ -67,6 +67,26 @@ def prepare_features(train_data, test_data):
         "away_previous_avg_redCards"
     ]
 
+    features.extend([
+    "home_previous_form_points_5",
+    "away_previous_form_points_5",
+
+    "home_previous_avg_goals_5",
+    "away_previous_avg_goals_5",
+
+    "home_previous_avg_conceded_5",
+    "away_previous_avg_conceded_5",
+
+    "home_previous_goal_difference_5",
+    "away_previous_goal_difference_5",
+
+    "home_previous_home_win_rate",
+    "away_previous_home_win_rate",
+
+    "home_previous_away_win_rate",
+    "away_previous_away_win_rate"
+])
+
     # X = inputs
     X_train = train_data[features].copy()
     X_test = test_data[features].copy()
