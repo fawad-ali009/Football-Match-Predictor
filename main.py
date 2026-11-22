@@ -8,7 +8,7 @@ from src.feature_engineering import (
     add_match_historical_features
 )
 from src.preprocessing import split_by_date, prepare_features
-from src.model_training import train_logistic_regression, train_random_forest
+from src.model_training import train_logistic_regression, train_random_forest, train_gradient_boosting
 from src.model_evaluation import evaluate_model
 
 
@@ -96,6 +96,21 @@ print("Random Forest training completed!")
 
 random_forest_predictions = evaluate_model(
     random_forest_model,
+    X_validation,
+    y_validation
+)
+
+print("\n========== GRADIENT BOOSTING ==========")
+
+gradient_model = train_gradient_boosting(
+    X_train,
+    y_train
+)
+
+print("Gradient Boosting training completed!")
+
+gradient_predictions = evaluate_model(
+    gradient_model,
     X_validation,
     y_validation
 )
