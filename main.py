@@ -8,7 +8,7 @@ from src.feature_engineering import (
     add_match_historical_features
 )
 from src.preprocessing import split_by_date, prepare_features
-from src.model_training import train_logistic_regression
+from src.model_training import train_logistic_regression, train_random_forest
 from src.model_evaluation import evaluate_model
 
 
@@ -53,12 +53,14 @@ match_features = add_match_historical_features(
 
 train_data, test_data = split_by_date(match_features)
 
-X_train, X_test, y_train, y_test, imputer, scaler = prepare_features(
-    train_data,
-    test_data
-)
+train_data, test_data = split_by_date(match_features)
 
-print("Data preprocessing completed successfully!")
+model_train_data, validation_data = split_by_date(train_data)
+
+X_train, X_validation, y_train, y_validation, imputer, scaler = prepare_features(
+    model_train_data,
+    validation_data
+)
 
 
 # Step 4: Final confirmation
@@ -66,9 +68,8 @@ print("Feature engineering completed successfully!")
 print("Total matches:", len(match_features))
 print("Total features:", len(match_features.columns))
 
-print("\n========== MODEL TRAINING ==========")
 
-print("Training Logistic Regression...")
+print("\n========== LOGISTIC REGRESSION ==========")
 
 logistic_model = train_logistic_regression(
     X_train,
@@ -77,21 +78,24 @@ logistic_model = train_logistic_regression(
 
 print("Logistic Regression training completed!")
 
-
-print("\nTesting Logistic Regression...")
-
-predictions = evaluate_model(
+logistic_predictions = evaluate_model(
     logistic_model,
-    X_test,
-    y_test
+    X_validation,
+    y_validation
 )
 
-print("\n========== SAMPLE PREDICTIONS ==========")
 
-print("Predicted Results:")
-print(predictions[:10])
+print("\n========== RANDOM FOREST ==========")
 
-print("\nActual Results:")
-print(y_test.iloc[:10].values)
+random_forest_model = train_random_forest(
+    X_train,
+    y_train
+)
 
+print("Random Forest training completed!")
 
+random_forest_predictions = evaluate_model(
+    random_forest_model,
+    X_validation,
+    y_validation
+)
