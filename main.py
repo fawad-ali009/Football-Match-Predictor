@@ -141,3 +141,51 @@ gradient_predictions = evaluate_model(
     X_validation,
     y_validation
 )
+
+print("\n========== BALANCED LOGISTIC REGRESSION ==========")
+
+balanced_logistic = train_logistic_regression(
+    X_train,
+    y_train,
+    class_weight="balanced"
+)
+
+print("Balanced Logistic Regression training completed!")
+
+balanced_logistic_predictions = evaluate_model(
+    balanced_logistic,
+    X_validation,
+    y_validation
+)
+
+print("\n========== BALANCED RANDOM FOREST ==========")
+
+balanced_forest = train_random_forest(
+    X_train,
+    y_train,
+    class_weight="balanced"
+)
+
+print("Balanced Random Forest training completed!")
+
+balanced_forest_predictions = evaluate_model(
+    balanced_forest,
+    X_validation,
+    y_validation
+)
+
+print("\n========== BALANCED GRADIENT BOOSTING ==========")
+
+balanced_gradient = train_gradient_boosting(
+    X_train,
+    y_train,
+    class_weight="balanced"
+)
+
+print("Balanced Gradient Boosting training completed!")
+
+balanced_gradient_predictions = evaluate_model(
+    balanced_gradient,
+    X_validation,
+    y_validation
+)
