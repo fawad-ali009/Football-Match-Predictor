@@ -8,6 +8,8 @@ from src.feature_engineering import (
     add_match_historical_features
 )
 from src.preprocessing import split_by_date, prepare_features
+from src.model_training import train_logistic_regression
+from src.model_evaluation import evaluate_model
 
 
 # Step 1: Load datasets
@@ -63,5 +65,33 @@ print("Data preprocessing completed successfully!")
 print("Feature engineering completed successfully!")
 print("Total matches:", len(match_features))
 print("Total features:", len(match_features.columns))
+
+print("\n========== MODEL TRAINING ==========")
+
+print("Training Logistic Regression...")
+
+logistic_model = train_logistic_regression(
+    X_train,
+    y_train
+)
+
+print("Logistic Regression training completed!")
+
+
+print("\nTesting Logistic Regression...")
+
+predictions = evaluate_model(
+    logistic_model,
+    X_test,
+    y_test
+)
+
+print("\n========== SAMPLE PREDICTIONS ==========")
+
+print("Predicted Results:")
+print(predictions[:10])
+
+print("\nActual Results:")
+print(y_test.iloc[:10].values)
 
 
