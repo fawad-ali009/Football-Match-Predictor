@@ -58,6 +58,41 @@ def evaluate_2021_season():
     y_true = comparison["actual_result"]
     y_pred = comparison["predicted_result"]
 
+
+    # =====================================
+    # BASELINE MODEL COMPARISON
+    # =====================================
+
+    # Find the most common actual result.
+    most_common = "W"
+
+    # Simple baseline: always predict that result.
+    baseline_predictions = [most_common] * len(y_true)
+
+    baseline_accuracy = accuracy_score(
+        y_true,
+        baseline_predictions
+    )
+
+    baseline_f1 = f1_score(
+        y_true,
+        baseline_predictions,
+        labels=["W", "D", "L"],
+        average="macro",
+        zero_division=0
+    )
+
+    print("\n========== BASELINE COMPARISON ==========")
+
+    print("Baseline strategy: Always predict", most_common)
+
+    print(
+        "Baseline accuracy:",
+        round(baseline_accuracy * 100, 2), "%"
+    )
+
+    print("Baseline Macro F1:", round(baseline_f1, 4))
+
     # Overall performance.
     accuracy = accuracy_score(y_true, y_pred)
 
