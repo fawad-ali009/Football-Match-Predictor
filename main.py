@@ -27,13 +27,14 @@ from src.model_evaluation import evaluate_model
 from src.model_optimization import tune_all_models
 from src.feature_importance import analyze_feature_importance
 from src.model_storage import save_candidate_models
+from src.final_evaluation import evaluate_final_model
 
 
 # =====================================
 # SELECT THE MODE
 # =====================================
 
-MODE = "save"   # Options: "train" or "tune"
+MODE = "final_test"   # Options: "train" or "tune"
 
 
 # =====================================
@@ -208,6 +209,14 @@ elif MODE == "save":
     save_candidate_models(
         model_train_data,
         validation_data,
+        feature_columns
+    )
+
+elif MODE == "final_test":
+
+    final_model = evaluate_final_model(
+        train_data,
+        test_data,
         feature_columns
     )
 
