@@ -1,42 +1,67 @@
+
 from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
+
 from src.feature_engineering import (
     create_match_features,
     create_target,
     create_team_history,
     add_historical_averages,
+    add_recent_features,
     add_match_historical_features,
-    add_match_recent_features,
-    add_recent_features
+    add_match_recent_features
 )
+
 from src.preprocessing import split_by_date, prepare_features
-from src.model_training import train_logistic_regression, train_random_forest, train_gradient_boosting
+
+from src.model_training import (
+    train_logistic_regression,
+    train_random_forest,
+    train_gradient_boosting
+)
+
 from src.model_evaluation import evaluate_model
-from src.model_optimization import compare_logistic_draw_weights
+from src.model_optimization import tune_all_models
 
 
-# Step 1: Load datasets
+# =====================================
+# SELECT THE MODE
+# =====================================
+
+MODE = "tune"   # Options: "train" or "tune"
+
+
+# =====================================
+# 1. LOAD DATASETS
+# =====================================
+
 games = load_games()
 teams = load_teams()
 stats = load_teamStats()
 
 
-# Step 2: Clean datasets
+# =====================================
+# 2. CLEAN DATASETS
+# =====================================
+
 games = clean_dataset(
-    games, "data/processed/games_cleaned.csv"
+    games,
+    "data/processed/games_cleaned.csv"
 )
 
 teams = clean_dataset(
-    teams, "data/processed/teams_cleaned.csv"
+    teams,
+    "data/processed/teams_cleaned.csv"
 )
 
 stats = clean_dataset(
-    stats, "data/processed/teamsStats_cleaned.csv"
+    stats,
+    "data/processed/teamsStats_cleaned.csv"
 )
 
 
 # =====================================
-# FEATURE ENGINEERING
+# 3. FEATURE ENGINEERING
 # =====================================
 
 match_features = create_match_features(stats)
@@ -60,146 +85,97 @@ match_features = add_match_recent_features(
 )
 
 print("\nFeature engineering completed!")
-
 print("Total matches:", len(match_features))
-
 print("Total columns:", len(match_features.columns))
 
-# =========================
-# DATA PREPROCESSING
-# =========================
 
-train_data, test_data = split_by_date(match_features)
+# =====================================
+# 4. CHRONOLOGICAL SPLIT
+# =====================================
 
 train_data, test_data = split_by_date(match_features)
 
 model_train_data, validation_data = split_by_date(train_data)
+
+print("\nTraining records:", len(model_train_data))
+print("Validation records:", len(validation_data))
+print("Reserved testing records:", len(test_data))
+
+
+# =====================================
+# 5. PREPARE FEATURE LIST
+# =====================================
 
 X_train, X_validation, y_train, y_validation, imputer, scaler = prepare_features(
     model_train_data,
     validation_data
 )
 
+feature_columns = X_train.columns.tolist()
 
-# Step 4: Final confirmation
-print("Feature engineering completed successfully!")
-print("Total matches:", len(match_features))
-print("Total features:", len(match_features.columns))
+print("\nTotal model features:", len(feature_columns))
 
-# =====================================
-# LOGISTIC REGRESSION
-# =====================================
+if len(feature_columns) != 32:
+    raise ValueError("Expected 32 model features")
 
-print("\n========== LOGISTIC REGRESSION ==========")
-
-logistic_model = train_logistic_regression(
-    X_train,
-    y_train
-)
-
-print("Logistic Regression training completed!")
-
-logistic_predictions = evaluate_model(
-    logistic_model,
-    X_validation,
-    y_validation
-)
 
 # =====================================
-# RANDOM FOREST
+# 6. RUN SELECTED MODE
 # =====================================
 
-print("\n========== RANDOM FOREST ==========")
+if MODE == "tune":
 
-random_forest_model = train_random_forest(
-    X_train,
-    y_train
-)
+    print("\n========== HYPERPARAMETER TUNING ==========")
 
-print("Random Forest training completed!")
+    results = tune_all_models(
+        model_train_data,
+        validation_data,
+        feature_columns
+    )
 
-random_forest_predictions = evaluate_model(
-    random_forest_model,
-    X_validation,
-    y_validation
-)
+elif MODE == "train":
 
-# =====================================
-# GRADIENT BOOSTING
-# =====================================
+    print("\n========== LOGISTIC REGRESSION ==========")
 
-print("\n========== GRADIENT BOOSTING ==========")
+    logistic_model = train_logistic_regression(
+        X_train,
+        y_train
+    )
 
-gradient_model = train_gradient_boosting(
-    X_train,
-    y_train
-)
+    evaluate_model(
+        logistic_model,
+        X_validation,
+        y_validation
+    )
 
-print("Gradient Boosting training completed!")
+    print("\n========== RANDOM FOREST ==========")
 
-gradient_predictions = evaluate_model(
-    gradient_model,
-    X_validation,
-    y_validation
-)
+    forest_model = train_random_forest(
+        X_train,
+        y_train
+    )
 
-print("\n========== BALANCED LOGISTIC REGRESSION ==========")
+    evaluate_model(
+        forest_model,
+        X_validation,
+        y_validation
+    )
 
-balanced_logistic = train_logistic_regression(
-    X_train,
-    y_train,
-    class_weight="balanced"
-)
+    print("\n========== GRADIENT BOOSTING ==========")
 
-print("Balanced Logistic Regression training completed!")
+    boosting_model = train_gradient_boosting(
+        X_train,
+        y_train
+    )
 
-balanced_logistic_predictions = evaluate_model(
-    balanced_logistic,
-    X_validation,
-    y_validation
-)
+    evaluate_model(
+        boosting_model,
+        X_validation,
+        y_validation
+    )
 
-print("\n========== BALANCED RANDOM FOREST ==========")
+else:
 
-balanced_forest = train_random_forest(
-    X_train,
-    y_train,
-    class_weight="balanced"
-)
+    raise ValueError("MODE must be 'train' or 'tune'")
 
-print("Balanced Random Forest training completed!")
-
-balanced_forest_predictions = evaluate_model(
-    balanced_forest,
-    X_validation,
-    y_validation
-)
-
-print("\n========== BALANCED GRADIENT BOOSTING ==========")
-
-balanced_gradient = train_gradient_boosting(
-    X_train,
-    y_train,
-    class_weight="balanced"
-)
-
-print("Balanced Gradient Boosting training completed!")
-
-balanced_gradient_predictions = evaluate_model(
-    balanced_gradient,
-    X_validation,
-    y_validation
-)
-
-# =====================================
-# MODEL OPTIMIZATION
-# =====================================
-
-print("\n========== LOGISTIC REGRESSION OPTIMIZATION ==========")
-
-compare_logistic_draw_weights(
-    X_train,
-    y_train,
-    X_validation,
-    y_validation
-)
+print("\nPROJECT EXECUTION COMPLETED!")
