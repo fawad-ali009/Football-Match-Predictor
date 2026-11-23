@@ -28,13 +28,14 @@ from src.model_optimization import tune_all_models
 from src.feature_importance import analyze_feature_importance
 from src.model_storage import save_candidate_models
 from src.final_evaluation import evaluate_final_model
+from src.season_data import prepare_2021_results
 
 
 # =====================================
 # SELECT THE MODE
 # =====================================
 
-MODE = "final_test"   # Options: "train" or "tune"
+MODE = "collect_2021"   # Options: "train" or "tune"
 
 
 # =====================================
@@ -219,6 +220,62 @@ elif MODE == "final_test":
         test_data,
         feature_columns
     )
+
+elif MODE == "collect_2021":
+
+    prepare_2021_results(teams)
+
+
+elif MODE == "inspect_teams":
+
+    import pandas as pd
+    from difflib import get_close_matches
+    from src.season_data import normalize_name
+
+    unmatched = pd.read_csv(
+        "data/evaluation/unmatched_teams_2021_22.csv"
+    )
+
+    # Create a lookup using historical team names.
+    historical = {}
+
+    for _, team in teams.iterrows():
+        key = normalize_name(team["name"])
+
+        historical[key] = {
+            "name": team["name"],
+            "id": team["teamID"]
+        }
+
+    print("\n========== TEAM NAME INSPECTION ==========")
+
+    for _, row in unmatched.iterrows():
+
+        print("\nLeague:", row["league"])
+        print("Unmatched team:", row["source_name"])
+
+        suggestions = get_close_matches(
+            row["normalized_name"],
+            list(historical.keys()),
+            n=4,
+            cutoff=0.3
+        )
+
+        if not suggestions:
+            print("No close matches found.")
+            continue
+
+        print("Possible historical names:")
+
+        for key in suggestions:
+            team = historical[key]
+
+            print(
+                "  ",
+                team["name"],
+                "| teamID:",
+                team["id"]
+            )
 
 else:
 
