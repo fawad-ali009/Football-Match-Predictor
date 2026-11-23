@@ -12,6 +12,7 @@ from src.feature_engineering import (
 from src.preprocessing import split_by_date, prepare_features
 from src.model_training import train_logistic_regression, train_random_forest, train_gradient_boosting
 from src.model_evaluation import evaluate_model
+from src.model_optimization import compare_logistic_draw_weights
 
 
 # Step 1: Load datasets
@@ -186,6 +187,19 @@ print("Balanced Gradient Boosting training completed!")
 
 balanced_gradient_predictions = evaluate_model(
     balanced_gradient,
+    X_validation,
+    y_validation
+)
+
+# =====================================
+# MODEL OPTIMIZATION
+# =====================================
+
+print("\n========== LOGISTIC REGRESSION OPTIMIZATION ==========")
+
+compare_logistic_draw_weights(
+    X_train,
+    y_train,
     X_validation,
     y_validation
 )
