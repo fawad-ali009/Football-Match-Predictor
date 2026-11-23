@@ -44,11 +44,12 @@ def create_match_features(stats):
     away_stats = away_stats.drop(columns=["location"])
 
     match_features = pd.merge(
-        home_stats,
-        away_stats,
-        on=["gameID", "season", "date"],
-        how="inner"
-    )
+    home_stats,
+    away_stats,
+    on=["gameID", "season", "date"],
+    how="inner",
+    validate="one_to_one"
+)
 
     return match_features
 
@@ -147,9 +148,48 @@ def create_team_history(match_features):
         ignore_index=True
     )
 
-    team_history = team_history.sort_values("date")
+    
+    team_history["date"] = pd.to_datetime(team_history["date"])
+
+    
+    # Convert dates
+    team_history["date"] = pd.to_datetime(
+        team_history["date"]
+    )
+
+    # Sort matches chronologically
+    team_history = team_history.sort_values(
+        ["date", "gameID", "teamID"]
+    ).reset_index(drop=True)
+
+    # Check for duplicate kickoff times
+    duplicate_times = team_history.duplicated(
+        subset=["teamID", "date"],
+        keep=False
+    )
+
+    print(
+        "Conflicting kickoff records:",
+        duplicate_times.sum()
+    )
+
+    # Raise an error ONLY if duplicates exist
+    if duplicate_times.any():
+
+        print(
+            team_history.loc[
+                duplicate_times,
+                ["gameID", "teamID", "date"]
+            ]
+        )
+
+        raise ValueError(
+            "A team has multiple matches at the same time."
+        )
 
     return team_history
+
+
 
 def add_historical_averages(team_history):
 
@@ -180,6 +220,7 @@ def add_historical_averages(team_history):
 
     return team_history
 
+
 def add_match_historical_features(match_features, team_history):
 
     historical_features = [
@@ -195,61 +236,62 @@ def add_match_historical_features(match_features, team_history):
         "previous_avg_redCards"
     ]
 
+    # Get historical statistics of home teams
     home_history = team_history[
+        team_history["location"] == "h"
+    ][
         ["gameID", "teamID"] + historical_features
     ].copy()
 
+    # Get historical statistics of away teams
     away_history = team_history[
+        team_history["location"] == "a"
+    ][
         ["gameID", "teamID"] + historical_features
     ].copy()
 
+    # Rename home team ID and historical features
     home_history = home_history.rename(
         columns={
             "teamID": "homeTeamID",
-            "previous_avg_goals": "home_previous_avg_goals",
-            "previous_avg_xGoals": "home_previous_avg_xGoals",
-            "previous_avg_shots": "home_previous_avg_shots",
-            "previous_avg_shotsOnTarget": "home_previous_avg_shotsOnTarget",
-            "previous_avg_deep": "home_previous_avg_deep",
-            "previous_avg_ppda": "home_previous_avg_ppda",
-            "previous_avg_fouls": "home_previous_avg_fouls",
-            "previous_avg_corners": "home_previous_avg_corners",
-            "previous_avg_yellowCards": "home_previous_avg_yellowCards",
-            "previous_avg_redCards": "home_previous_avg_redCards"
+            **{
+                feature: "home_" + feature
+                for feature in historical_features
+            }
         }
     )
 
+    # Rename away team ID and historical features
     away_history = away_history.rename(
         columns={
             "teamID": "awayTeamID",
-            "previous_avg_goals": "away_previous_avg_goals",
-            "previous_avg_xGoals": "away_previous_avg_xGoals",
-            "previous_avg_shots": "away_previous_avg_shots",
-            "previous_avg_shotsOnTarget": "away_previous_avg_shotsOnTarget",
-            "previous_avg_deep": "away_previous_avg_deep",
-            "previous_avg_ppda": "away_previous_avg_ppda",
-            "previous_avg_fouls": "away_previous_avg_fouls",
-            "previous_avg_corners": "away_previous_avg_corners",
-            "previous_avg_yellowCards": "away_previous_avg_yellowCards",
-            "previous_avg_redCards": "away_previous_avg_redCards"
+            **{
+                feature: "away_" + feature
+                for feature in historical_features
+            }
         }
     )
 
+    # Merge home historical features
     match_features = pd.merge(
         match_features,
         home_history,
         on=["gameID", "homeTeamID"],
-        how="left"
+        how="left",
+        validate="one_to_one"
     )
 
+    # Merge away historical features
     match_features = pd.merge(
         match_features,
         away_history,
         on=["gameID", "awayTeamID"],
-        how="left"
+        how="left",
+        validate="one_to_one"
     )
 
     return match_features
+
 
 # New feature added
 def previous_five_average(values):

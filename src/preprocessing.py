@@ -34,7 +34,7 @@ def split_by_date(match_features):
 
 def prepare_features(train_data, test_data):
 
-    # Select our 20 historical features
+    # Select our 32 historical features
     features = [
         "home_previous_avg_goals",
         "away_previous_avg_goals",

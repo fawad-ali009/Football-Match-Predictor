@@ -47,6 +47,65 @@ stats = pd.read_csv(
 
 stats["date"] = pd.to_datetime(stats["date"])
 
+
+# =====================================
+# DEBUG: CHECK MATCH MERGING
+# =====================================
+
+print("\n========== MERGE DIAGNOSTIC ==========")
+
+print("Original stats rows:", len(stats))
+
+matches_check = create_match_features(stats)
+
+print("Merged match rows:", len(matches_check))
+
+print(
+    "Repeated game IDs:",
+    matches_check.duplicated("gameID", keep=False).sum()
+)
+
+# Reconstruct team/date pairs from merged matches
+
+home_check = matches_check[
+    ["gameID", "date", "homeTeamID"]
+].rename(
+    columns={"homeTeamID": "teamID"}
+)
+
+away_check = matches_check[
+    ["gameID", "date", "awayTeamID"]
+].rename(
+    columns={"awayTeamID": "teamID"}
+)
+
+history_check = pd.concat(
+    [home_check, away_check],
+    ignore_index=True
+)
+
+history_check["date"] = pd.to_datetime(
+    history_check["date"]
+)
+
+conflicts = history_check[
+    history_check.duplicated(
+        ["teamID", "date"],
+        keep=False
+    )
+]
+
+print("Reconstructed history rows:", len(history_check))
+print("Conflicting history records:", len(conflicts))
+
+if not conflicts.empty:
+    print(
+        conflicts.sort_values(
+            ["teamID", "date"]
+        ).to_string(index=False)
+    )
+
+
 full_data = build_features(stats)
 
 features = [
