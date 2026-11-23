@@ -1,4 +1,7 @@
 
+import matplotlib
+matplotlib.use("Agg")
+
 from src.data_loader import load_games, load_teams, load_teamStats
 from src.data_cleaning import clean_dataset
 
@@ -22,6 +25,7 @@ from src.model_training import (
 
 from src.model_evaluation import evaluate_model
 from src.model_optimization import tune_all_models
+from src.feature_importance import analyze_feature_importance
 
 
 # =====================================
@@ -123,6 +127,7 @@ if len(feature_columns) != 32:
 # 6. RUN SELECTED MODE
 # =====================================
 
+
 if MODE == "tune":
 
     print("\n========== HYPERPARAMETER TUNING ==========")
@@ -132,6 +137,27 @@ if MODE == "tune":
         validation_data,
         feature_columns
     )
+
+    # =====================================
+    # FEATURE IMPORTANCE ANALYSIS
+    # =====================================
+
+    print("\n========== FEATURE IMPORTANCE ==========")
+
+    logistic_importance = analyze_feature_importance(
+        results["Logistic Regression"]["model"],
+        validation_data,
+        feature_columns,
+        "Logistic Regression"
+    )
+
+    forest_importance = analyze_feature_importance(
+        results["Random Forest"]["model"],
+        validation_data,
+        feature_columns,
+        "Random Forest"
+    )
+
 
 elif MODE == "train":
 
