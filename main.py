@@ -26,13 +26,14 @@ from src.model_training import (
 from src.model_evaluation import evaluate_model
 from src.model_optimization import tune_all_models
 from src.feature_importance import analyze_feature_importance
+from src.model_storage import save_candidate_models
 
 
 # =====================================
 # SELECT THE MODE
 # =====================================
 
-MODE = "tune"   # Options: "train" or "tune"
+MODE = "save"   # Options: "train" or "tune"
 
 
 # =====================================
@@ -198,6 +199,16 @@ elif MODE == "train":
         boosting_model,
         X_validation,
         y_validation
+    )
+
+elif MODE == "save":
+
+    print("\n========== SAVING CANDIDATE MODELS ==========")
+
+    save_candidate_models(
+        model_train_data,
+        validation_data,
+        feature_columns
     )
 
 else:
