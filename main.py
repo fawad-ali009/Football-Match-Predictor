@@ -29,13 +29,15 @@ from src.feature_importance import analyze_feature_importance
 from src.model_storage import save_candidate_models
 from src.final_evaluation import evaluate_final_model
 from src.season_data import prepare_2021_results
+from src.season_prediction import predict_2021_season
+from src.season_evaluation import evaluate_2021_season
 
 
 # =====================================
 # SELECT THE MODE
 # =====================================
 
-MODE = "collect_2021"   # Options: "train" or "tune"
+MODE = "evaluate_2021"   # Options: "train" or "tune"
 
 
 # =====================================
@@ -276,6 +278,13 @@ elif MODE == "inspect_teams":
                 "| teamID:",
                 team["id"]
             )
+
+elif MODE == "evaluate_2021":
+
+    predict_2021_season(team_history)
+
+    evaluate_2021_season()
+
 
 else:
 
